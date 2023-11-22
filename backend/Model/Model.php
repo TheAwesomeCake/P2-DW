@@ -151,6 +151,16 @@ class Model {
     $stmt = $this->conn->prepare($query);
     return $stmt->execute();
   }
+  public function getPermissoesByPerfil($perfilId) {
+    $sql = "SELECT perm.nome 
+        FROM permissao perm
+        JOIN perfil_permissao pp ON perm.id = pp.id_permissao
+        WHERE pp.id_perfil = :perfilId";
+    $stmt = $this->conn->prepare($sql);
+    $stmt->bindValue(":perfilId", $perfilId, PDO::PARAM_INT);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
 
 }
 ?>

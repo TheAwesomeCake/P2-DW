@@ -6,6 +6,12 @@ use App\Controller\VendaController;
 $usuarioController = new UsuarioController();
 $vendaController = new VendaController();
 
+header('Content-Type: application/json');
+header('Access-Control-Allow-Origin: * ' );
+header('Access-Control-Allow-Methods: OPTIONS, GET, POST, PUT, DELETE');
+header('Access-Control-Allow-Headers: Content-Type');
+header('Cache-Control: no-cache, no-store, must-revalidate');
+
 $url = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $httpMethod = $_SERVER['REQUEST_METHOD'];
 $body = json_decode(file_get_contents('php://input'), true);
@@ -35,6 +41,28 @@ switch($url) {
                     echo json_encode(["status"=>false]);
                     exit;
                 }
+            break;
+        }
+    break;
+    case '/backend/login':
+        switch($httpMethod) {
+            case "POST":
+                $resultado = $usuarioController->login($body);
+                if(!$resultado['status']){
+                    echo json_encode(['status' => $resultado['status'], 'message' => $resultado['message']]);
+                    exit;
+                }
+                echo json_encode(['status' => $resultado['status'], 'message' => $resultado['message'],'token'=>$resultado['token']]);
+            break;
+            case "GET":
+                $headers = getallheaders();
+                $token = $headers['authorization'] ?? null;
+                $validationResponse = $usuarioController->validarToken($token);
+                if ($token === null || !$validationResponse['status']) {
+                    echo json_encode($validationResponse);
+                    exit;
+                }
+                echo json_encode($validationResponse);
             break;
         }
     break;
